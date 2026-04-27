@@ -1,13 +1,14 @@
 // app/layout.js
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import type { ReactNode } from "react";
 
 export const metadata = {
   title: "Sewa Manager",
   description: "Manage sewa sheets and volunteer records",
 };
 
-export default function RootLayout({ children }) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body className="min-h-screen bg-stone-50 text-stone-800">

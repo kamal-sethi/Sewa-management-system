@@ -1,24 +1,34 @@
-// app/page.js
 "use client";
+
 import { useState, useEffect, useCallback } from "react";
 import SheetCard from "@/components/SheetCard";
 import CreateSheetModal from "@/components/CreateSheetModal";
 
+type Sheet = {
+  _id: string;
+  // add more fields if needed later
+};
+
 export default function HomePage() {
-  const [sheets, setSheets] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [showCreate, setShowCreate] = useState(false);
+  const [sheets, setSheets] = useState<Sheet[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [showCreate, setShowCreate] = useState<boolean>(false);
 
   const fetchSheets = useCallback(async () => {
     try {
       setLoading(true);
       const res = await fetch("/api/sheets");
       const data = await res.json();
+
       if (data.success) setSheets(data.data);
       else throw new Error(data.message);
     } catch (err) {
-      setError(err.message);
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Something went wrong");
+      }
     } finally {
       setLoading(false);
     }
@@ -28,12 +38,12 @@ export default function HomePage() {
     fetchSheets();
   }, [fetchSheets]);
 
-  const handleSheetCreated = (newSheet) => {
+  const handleSheetCreated = (newSheet: Sheet) => {
     setSheets((prev) => [newSheet, ...prev]);
     setShowCreate(false);
   };
 
-  const handleSheetDeleted = (id) => {
+  const handleSheetDeleted = (id: string) => {
     setSheets((prev) => prev.filter((s) => s._id !== id));
   };
 
