@@ -145,6 +145,9 @@ export default function LoginClient() {
           <button disabled={loading} className="btn-primary w-full">
             {loading ? "Signing in..." : "Login"}
           </button>
+          <h1>Demo Credentials</h1>
+          <p>Username:admin</p>
+          <p>password:admin123</p>
         </form>
       </div>
     </div>
