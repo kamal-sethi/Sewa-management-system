@@ -4,7 +4,7 @@ import { AUTH_COOKIE_NAME, verifySessionToken } from "@/lib/auth";
 const PUBLIC_PATHS = ["/login"];
 const PUBLIC_API_PATHS = ["/api/auth/login", "/api/auth/logout"];
 
-export async function middleware(request) {
+export async function proxy(request) {
   const { pathname } = request.nextUrl;
 
   const isPublicPath = PUBLIC_PATHS.includes(pathname);
@@ -20,7 +20,7 @@ export async function middleware(request) {
     if (!session) {
       return NextResponse.json(
         { success: false, message: "Unauthorized" },
-        { status: 401 },
+        { status: 401 }
       );
     }
 
@@ -31,6 +31,7 @@ export async function middleware(request) {
     if (session) {
       return NextResponse.redirect(new URL("/", request.url));
     }
+
     return NextResponse.next();
   }
 
@@ -44,5 +45,5 @@ export async function middleware(request) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\..*).*)"],
 };
