@@ -230,10 +230,7 @@ const styles = `
     justify-content: center;
     gap: 18px;
     margin-bottom: 4px;
-    width: fit-content;
-    max-width: 100%;
-    margin-left: auto;
-    margin-right: auto;
+    flex-wrap: nowrap;
   }
 
   .njr-logo-box {
@@ -268,7 +265,7 @@ const styles = `
 
   .njr-header-title {
     text-align: center;
-    min-width: 0;
+    flex: 1;
   }
   .njr-header-title h1 {
     font-size: 17px;
