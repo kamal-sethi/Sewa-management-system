@@ -8,6 +8,7 @@ const INITIAL = {
   age: "",
   gender: "Male",
   mobileNumber: "",
+  aadharNumber: "",
   address: "",
 };
 
@@ -19,8 +20,9 @@ export default function AddPersonModal({ initialName = "", onClose, onAdded }) {
   const handleChange = (e) => {
     const { name, value } = e.target;
     // For mobile number, only allow digits and limit to 10
-    if (name === "mobileNumber") {
-      const digitsOnly = value.replace(/\D/g, "").slice(0, 10);
+    if (name === "mobileNumber" || name === "aadharNumber") {
+      const maxLength = name === "mobileNumber" ? 10 : 12;
+      const digitsOnly = value.replace(/\D/g, "").slice(0, maxLength);
       setForm((prev) => ({ ...prev, [name]: digitsOnly }));
     } else {
       setForm((prev) => ({ ...prev, [name]: value }));
@@ -38,6 +40,11 @@ export default function AddPersonModal({ initialName = "", onClose, onAdded }) {
 
     if (form.mobileNumber && form.mobileNumber.length !== 10) {
       setError("Mobile number must be exactly 10 digits.");
+      return;
+    }
+
+    if (form.aadharNumber && form.aadharNumber.length !== 12) {
+      setError("Aadhaar number must be exactly 12 digits.");
       return;
     }
 
@@ -64,7 +71,7 @@ export default function AddPersonModal({ initialName = "", onClose, onAdded }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div
-        className="modal-box max-w-lg w-full"
+        className="modal-box w-full sm:max-w-lg"
         onClick={(e) => e.stopPropagation()}
       >
         <h2
@@ -103,7 +110,7 @@ export default function AddPersonModal({ initialName = "", onClose, onAdded }) {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <label className="block text-xs font-medium text-stone-600 mb-1">
                 Age <span className="text-red-500">*</span>
@@ -153,6 +160,21 @@ export default function AddPersonModal({ initialName = "", onClose, onAdded }) {
 
           <div>
             <label className="block text-xs font-medium text-stone-600 mb-1">
+              Aadhaar Number
+            </label>
+            <input
+              name="aadharNumber"
+              value={form.aadharNumber}
+              onChange={handleChange}
+              className="input-field"
+              placeholder="12-digit Aadhaar number"
+              type="tel"
+              maxLength={12}
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-stone-600 mb-1">
               Address
             </label>
             <textarea
@@ -171,7 +193,7 @@ export default function AddPersonModal({ initialName = "", onClose, onAdded }) {
             </p>
           )}
 
-          <div className="flex gap-3 pt-2">
+          <div className="flex flex-col gap-3 pt-2 sm:flex-row">
             <button
               type="button"
               onClick={onClose}

@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export default function SheetCard({ sheet, onDeleted }) {
   const [deleting, setDeleting] = useState(false);
-  const [confirm, setConfirm] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const formattedDate = new Date(sheet.createdAt).toLocaleDateString("en-IN", {
     day: "numeric",
@@ -25,7 +25,7 @@ export default function SheetCard({ sheet, onDeleted }) {
       console.error(err);
     } finally {
       setDeleting(false);
-      setConfirm(false);
+      setShowConfirmModal(false);
     }
   };
 
@@ -56,31 +56,51 @@ export default function SheetCard({ sheet, onDeleted }) {
           Open →
         </Link>
 
-        {confirm ? (
-          <div className="flex gap-1.5">
-            <button
-              onClick={handleDelete}
-              disabled={deleting}
-              className="text-xs px-2 py-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50"
-            >
-              {deleting ? "..." : "Confirm"}
-            </button>
-            <button
-              onClick={() => setConfirm(false)}
-              className="text-xs px-2 py-1.5 bg-stone-100 text-stone-600 rounded-lg hover:bg-stone-200"
-            >
-              Cancel
-            </button>
-          </div>
-        ) : (
-          <button
-            onClick={() => setConfirm(true)}
-            className="px-3 py-1.5 text-sm text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-          >
-            Delete
-          </button>
-        )}
+        <button
+          onClick={() => setShowConfirmModal(true)}
+          className="px-3 py-1.5 text-sm text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+        >
+          Delete
+        </button>
       </div>
+
+      {showConfirmModal && (
+        <div className="modal-overlay" onClick={() => setShowConfirmModal(false)}>
+          <div
+            className="modal-box sm:max-w-md"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <h3
+              className="mb-2 text-lg font-bold text-stone-800"
+              style={{ fontFamily: "'Baloo 2', cursive" }}
+            >
+              Delete Sheet
+            </h3>
+            <p className="mb-4 text-sm text-stone-600">
+              Are you sure you want to delete <strong>{sheet.name}</strong>?
+              This will also remove all records inside this sheet.
+            </p>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <button
+                type="button"
+                onClick={() => setShowConfirmModal(false)}
+                disabled={deleting}
+                className="btn-secondary flex-1"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={deleting}
+                className="btn-danger flex-1 disabled:opacity-50"
+              >
+                {deleting ? "Deleting..." : "Delete Sheet"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

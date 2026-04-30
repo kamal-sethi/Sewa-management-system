@@ -160,11 +160,11 @@ export default function SheetTable({
   return (
     <div className={`flex min-h-0 flex-col ${className}`}>
       {!addRow && (
-        <div className="mb-4 flex shrink-0 items-center justify-between gap-3">
+        <div className="mb-4 flex shrink-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <button
             id="add-person-btn"
             onClick={() => setAddRow(true)}
-            className="btn-primary text-sm"
+            className="btn-primary w-full text-sm sm:w-auto"
           >
             + Add Person to Sheet
           </button>
@@ -172,7 +172,7 @@ export default function SheetTable({
             type="button"
             onClick={handlePrintClick}
             disabled={loadingPrintDetails}
-            className="btn-secondary text-sm"
+            className="btn-secondary w-full text-sm sm:w-auto"
           >
             {loadingPrintDetails ? "Loading..." : "Print"}
           </button>
@@ -234,15 +234,18 @@ export default function SheetTable({
             </p>
           )}
 
-          <div className="flex gap-2 mt-3">
+          <div className="mt-3 flex flex-col gap-2 sm:flex-row">
             <button
               onClick={handleAddRecord}
               disabled={saving || !selectedPerson}
-              className="btn-primary text-sm"
+              className="btn-primary text-sm sm:w-auto"
             >
               {saving ? "Adding..." : "Add to Sheet"}
             </button>
-            <button onClick={resetAddRow} className="btn-secondary text-sm">
+            <button
+              onClick={resetAddRow}
+              className="btn-secondary text-sm sm:w-auto"
+            >
               Cancel
             </button>
           </div>
@@ -260,8 +263,11 @@ export default function SheetTable({
         </div>
       ) : (
         <div className="card flex min-h-0 flex-1 flex-col overflow-hidden">
+          <div className="border-b border-stone-100 px-4 py-2 text-xs text-stone-500 sm:hidden">
+            Swipe sideways to view all columns
+          </div>
           <div className="table-scroll min-h-0 flex-1 overflow-y-auto">
-            <table className="w-full table-fixed border-collapse text-left">
+            <table className="min-w-[960px] w-full table-fixed border-collapse text-left">
               <colgroup>
                 {COLUMN_WIDTHS.map((width, index) => (
                   <col key={index} style={{ width }} />
@@ -294,7 +300,7 @@ export default function SheetTable({
             </table>
           </div>
 
-          <div className="flex shrink-0 items-center justify-between border-t border-stone-100 bg-stone-50 px-4 py-3 text-sm text-stone-500">
+          <div className="flex shrink-0 flex-col gap-1 border-t border-stone-100 bg-stone-50 px-4 py-3 text-sm text-stone-500 sm:flex-row sm:items-center sm:justify-between">
             <span>
               {records.length} person{records.length !== 1 ? "s" : ""}
             </span>

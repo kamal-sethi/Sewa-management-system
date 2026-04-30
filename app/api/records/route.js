@@ -4,6 +4,7 @@ import { connectDB } from "@/lib/mongodb";
 import { requireAdminRequest } from "@/lib/auth";
 import Record from "@/models/Record";
 import { normalizeFareInput } from "@/lib/fare";
+import { getDatabaseName, getSessionFromRequest } from "../../../lib/auth";
 
 // POST /api/records — add a person to a sheet
 export async function POST(request) {
@@ -11,14 +12,16 @@ export async function POST(request) {
     const authError = await requireAdminRequest(request);
     if (authError) return authError;
 
-    await connectDB();
+    const session = await getSessionFromRequest(request);
+    const dbName = getDatabaseName(session);
+    await connectDB(dbName);
     const body = await request.json();
     const { sheetId, personId, fare, remarks } = body;
 
     if (!sheetId || !personId) {
       return NextResponse.json(
         { success: false, message: "sheetId and personId are required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -30,7 +33,7 @@ export async function POST(request) {
           success: false,
           message: "This person is already added to this sheet",
         },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -46,12 +49,12 @@ export async function POST(request) {
 
     return NextResponse.json(
       { success: true, data: populated },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
     return NextResponse.json(
       { success: false, message: error.message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

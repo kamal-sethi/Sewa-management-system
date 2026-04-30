@@ -5,6 +5,7 @@ import { requireAdminRequest } from "@/lib/auth";
 import Sheet from "@/models/Sheet";
 import Record from "@/models/Record";
 import "@/models/Person";
+import { getDatabaseName, getSessionFromRequest } from "../../../../lib/auth";
 
 const getSheetId = async (params) => {
   const resolvedParams = await params;
@@ -28,13 +29,15 @@ export async function GET(request, { params }) {
     const authError = await requireAdminRequest(request);
     if (authError) return authError;
 
-    await connectDB();
+    const session = await getSessionFromRequest(request);
+    const dbName = getDatabaseName(session);
+    await connectDB(dbName);
     const id = await getSheetId(params);
 
     if (!isValidId(id)) {
       return NextResponse.json(
         { success: false, message: "Invalid sheet ID" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -44,7 +47,7 @@ export async function GET(request, { params }) {
     if (!sheet) {
       return NextResponse.json(
         { success: false, message: "Sheet not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -60,7 +63,7 @@ export async function GET(request, { params }) {
   } catch (error) {
     return NextResponse.json(
       { success: false, message: error.message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -71,14 +74,16 @@ export async function PUT(request, { params }) {
     const authError = await requireAdminRequest(request);
     if (authError) return authError;
 
-    await connectDB();
+   const session = await getSessionFromRequest(request);
+    const dbName = getDatabaseName(session);
+    await connectDB(dbName);
     const id = await getSheetId(params);
     const body = await request.json();
 
     if (!isValidId(id)) {
       return NextResponse.json(
         { success: false, message: "Invalid sheet ID" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -88,7 +93,7 @@ export async function PUT(request, { params }) {
       if (!body.name?.trim()) {
         return NextResponse.json(
           { success: false, message: "Sheet name is required" },
-          { status: 400 }
+          { status: 400 },
         );
       }
       update.name = body.name.trim();
@@ -106,7 +111,7 @@ export async function PUT(request, { params }) {
             success: false,
             message: "Jathedar mobile number must be exactly 10 digits",
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
     }
@@ -115,7 +120,9 @@ export async function PUT(request, { params }) {
       if (field in body) {
         update[field] =
           field === "jathedarMobileNumber"
-            ? String(body[field] || "").replace(/\D/g, "").slice(0, 10)
+            ? String(body[field] || "")
+                .replace(/\D/g, "")
+                .slice(0, 10)
             : body[field]?.trim() || "";
       }
     });
@@ -123,20 +130,20 @@ export async function PUT(request, { params }) {
     if (Object.keys(update).length === 0) {
       return NextResponse.json(
         { success: false, message: "No sheet details provided" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const sheet = await Sheet.findByIdAndUpdate(
       id,
       { $set: update },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     ).lean();
 
     if (!sheet) {
       return NextResponse.json(
         { success: false, message: "Sheet not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -144,7 +151,7 @@ export async function PUT(request, { params }) {
   } catch (error) {
     return NextResponse.json(
       { success: false, message: error.message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -155,13 +162,15 @@ export async function DELETE(request, { params }) {
     const authError = await requireAdminRequest(request);
     if (authError) return authError;
 
-    await connectDB();
+    const session = await getSessionFromRequest(request);
+    const dbName = getDatabaseName(session);
+    await connectDB(dbName);
     const id = await getSheetId(params);
 
     if (!isValidId(id)) {
       return NextResponse.json(
         { success: false, message: "Invalid sheet ID" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -169,7 +178,7 @@ export async function DELETE(request, { params }) {
     if (!sheet) {
       return NextResponse.json(
         { success: false, message: "Sheet not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -182,7 +191,7 @@ export async function DELETE(request, { params }) {
   } catch (error) {
     return NextResponse.json(
       { success: false, message: error.message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -17,6 +17,8 @@ const FILTERS = [
   { id: "already", label: "Already" },
 ];
 
+const normalizeGender = (value = "") => String(value || "").trim().toUpperCase();
+
 export default function SheetDetailPage() {
   const { id } = useParams();
 
@@ -124,7 +126,7 @@ export default function SheetDetailPage() {
 
   const filterRecords = (recordList, filterId) =>
     recordList.filter((record) => {
-      const gender = record.personId?.gender;
+      const gender = normalizeGender(record.personId?.gender);
       const age = Number(record.personId?.age);
       const remarks = String(record.remarks || "")
         .trim()
@@ -132,9 +134,9 @@ export default function SheetDetailPage() {
 
       switch (filterId) {
         case "male":
-          return gender === "Male";
+          return gender === "MALE";
         case "female":
-          return gender === "Female";
+          return gender === "FEMALE";
         case "child":
           return Number.isFinite(age) && age < 14;
         case "fareEmpty":
@@ -219,29 +221,29 @@ export default function SheetDetailPage() {
     0,
   );
   const maleCount = filteredRecords.filter(
-    (record) => record.personId?.gender === "Male",
+    (record) => normalizeGender(record.personId?.gender) === "MALE",
   ).length;
   const femaleCount = filteredRecords.filter(
-    (record) => record.personId?.gender === "Female",
+    (record) => normalizeGender(record.personId?.gender) === "FEMALE",
   ).length;
   const childCount = filteredRecords.filter(
     (record) => Number(record.personId?.age) < 14,
   ).length;
 
   return (
-    <div className="flex h-[calc(100vh-6.5rem)] flex-col overflow-hidden">
-      <div className="mb-4 flex shrink-0 items-center gap-2 text-sm text-stone-500">
+    <div className="flex min-h-[calc(100dvh-6.5rem)] flex-col overflow-hidden">
+      <div className="mb-4 flex shrink-0 flex-wrap items-center gap-2 text-sm text-stone-500">
         <Link href="/" className="hover:text-orange-600 transition-colors">
           All Sheets
         </Link>
         <span>/</span>
-        <span className="text-stone-700 font-medium truncate">
+        <span className="min-w-0 flex-1 text-stone-700 font-medium break-words sm:flex-none sm:truncate">
           {sheet.name}
         </span>
       </div>
 
       <div className="mb-4 flex shrink-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex gap-5">
+        <div className="grid grid-cols-2 gap-4 sm:flex sm:flex-wrap sm:gap-5">
           <div>
             <p className="text-xs text-stone-500">Total</p>
             <p
@@ -280,7 +282,7 @@ export default function SheetDetailPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex w-full items-center gap-3 sm:w-auto">
           {/* <button
             onClick={() => document.getElementById("add-person-btn")?.click()}
             className="btn-primary text-sm"
@@ -290,7 +292,7 @@ export default function SheetDetailPage() {
           <select
             value={activeFilter}
             onChange={(e) => setActiveFilter(e.target.value)}
-            className="input-field text-sm"
+            className="input-field w-full text-sm sm:w-auto"
           >
             {FILTERS.map((filter) => (
               <option key={filter.id} value={filter.id}>
@@ -304,7 +306,7 @@ export default function SheetDetailPage() {
       {findOpen && (
         <form
           onSubmit={handleFindSubmit}
-          className="sticky top-3 z-30 ml-auto mb-4 flex w-full max-w-xl shrink-0 items-center gap-2 rounded-lg border border-stone-300 bg-white p-2 shadow-lg"
+          className="sticky top-3 z-30 mb-4 flex w-full shrink-0 flex-col gap-2 rounded-lg border border-stone-300 bg-white p-2 shadow-lg sm:ml-auto sm:max-w-xl sm:flex-row sm:items-center"
         >
           <label
             htmlFor="sheet-find"
@@ -342,12 +344,12 @@ export default function SheetDetailPage() {
           >
             Prev
           </button>
-          <span className="min-w-20 text-xs font-medium text-stone-500">
+          <span className="min-w-20 flex-1 text-xs font-medium text-stone-500 sm:flex-none">
             {findMessage}
           </span>
           <button
             type="button"
-            className="h-9 w-9 rounded-lg border border-stone-300 text-stone-500 transition hover:bg-stone-100"
+            className="h-9 w-full rounded-lg border border-stone-300 text-stone-500 transition hover:bg-stone-100 sm:w-9"
             onClick={() => {
               setFindOpen(false);
               setActiveMatchId(null);

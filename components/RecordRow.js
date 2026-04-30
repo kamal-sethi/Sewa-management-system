@@ -14,6 +14,7 @@ export default function RecordRow({
   isSearchMatch = false,
 }) {
   const person = record.personId;
+  const normalizedGender = String(person?.gender || "").trim().toUpperCase();
   const [fare, setFare] = useState(record.fare ?? "");
   const [remarks, setRemarks] = useState(record.remarks ?? "");
   const [saving, setSaving] = useState(false);
@@ -163,11 +164,11 @@ export default function RecordRow({
         </td>
 
         <td className="border border-stone-300 px-3 py-2.5 text-sm text-stone-600 text-center">
-          {person?.gender === "Male"
+          {normalizedGender === "MALE"
             ? "M"
-            : person?.gender === "Female"
+            : normalizedGender === "FEMALE"
               ? "F"
-              : "-"}
+              : person?.gender || "-"}
         </td>
 
         <td className="border border-stone-300 px-3 py-2.5 text-sm text-stone-600 whitespace-normal break-words">

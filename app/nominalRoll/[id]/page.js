@@ -1,7 +1,13 @@
 import { notFound } from "next/navigation";
+import { cookies } from "next/headers";
 import mongoose from "mongoose";
 import SewaJathaNominalRoll from "@/components/Sewajathanominalroll";
 import { connectDB } from "@/lib/mongodb";
+import {
+  AUTH_COOKIE_NAME,
+  getDatabaseName,
+  verifySessionToken,
+} from "@/lib/auth";
 import Sheet from "@/models/Sheet";
 import Record from "@/models/Record";
 import "@/models/Person";
@@ -45,6 +51,8 @@ const toNominalRollData = (sheet, records, extraEmptyRows = 0) => {
     sewadars: records.map((record) => {
       const person = record.personId || {};
       return {
+        recordId: String(record._id || ""),
+        personId: String(person._id || ""),
         name: person.name || "",
         fatherHusband: person.fatherOrHusbandName || "",
         gender: person.gender ? person.gender.toUpperCase() : "",
@@ -84,7 +92,12 @@ export default async function Page({ params, searchParams }) {
     notFound();
   }
 
-  await connectDB();
+  const cookieStore = await cookies();
+  const token = cookieStore.get(AUTH_COOKIE_NAME)?.value;
+  const session = await verifySessionToken(token);
+  const dbName = getDatabaseName(session);
+
+  await connectDB(dbName);
 
   const sheet = await Sheet.collection.findOne({
     _id: new mongoose.Types.ObjectId(id),

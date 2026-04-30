@@ -8,6 +8,7 @@ export default function EditPersonModal({ person, onClose, onUpdated }) {
     age: person?.age || "",
     gender: person?.gender || "Male",
     mobileNumber: person?.mobileNumber || "",
+    aadharNumber: person?.aadharNumber || "",
     address: person?.address || "",
   });
   const [loading, setLoading] = useState(false);
@@ -16,8 +17,9 @@ export default function EditPersonModal({ person, onClose, onUpdated }) {
   const handleChange = (event) => {
     const { name, value } = event.target;
 
-    if (name === "mobileNumber") {
-      const digitsOnly = value.replace(/\D/g, "").slice(0, 10);
+    if (name === "mobileNumber" || name === "aadharNumber") {
+      const maxLength = name === "mobileNumber" ? 10 : 12;
+      const digitsOnly = value.replace(/\D/g, "").slice(0, maxLength);
       setForm((current) => ({ ...current, [name]: digitsOnly }));
       return;
     }
@@ -36,6 +38,11 @@ export default function EditPersonModal({ person, onClose, onUpdated }) {
 
     if (form.mobileNumber && form.mobileNumber.length !== 10) {
       setError("Mobile number must be exactly 10 digits.");
+      return;
+    }
+
+    if (form.aadharNumber && form.aadharNumber.length !== 12) {
+      setError("Aadhaar number must be exactly 12 digits.");
       return;
     }
 
@@ -148,6 +155,21 @@ export default function EditPersonModal({ person, onClose, onUpdated }) {
               placeholder="10-digit mobile number"
               type="tel"
               maxLength={10}
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-xs font-medium text-stone-600">
+              Aadhaar Number
+            </label>
+            <input
+              name="aadharNumber"
+              value={form.aadharNumber}
+              onChange={handleChange}
+              className="input-field"
+              placeholder="12-digit Aadhaar number"
+              type="tel"
+              maxLength={12}
             />
           </div>
 

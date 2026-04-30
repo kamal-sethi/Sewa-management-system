@@ -6,6 +6,7 @@ import { requireAdminRequest } from "@/lib/auth";
 import Sheet from "@/models/Sheet";
 import Record from "@/models/Record";
 import "@/models/Person";
+import { getDatabaseName, getSessionFromRequest } from "../../../lib/auth";
 
 // GET /api/sheets - fetch all sheets, or one sheet with records using ?id=
 export async function GET(request) {
@@ -13,7 +14,9 @@ export async function GET(request) {
     const authError = await requireAdminRequest(request);
     if (authError) return authError;
 
-    await connectDB();
+    const session = await getSessionFromRequest(request);
+        const dbName = getDatabaseName(session);
+        await connectDB(dbName);
 
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
@@ -61,7 +64,9 @@ export async function POST(request) {
     const authError = await requireAdminRequest(request);
     if (authError) return authError;
 
-    await connectDB();
+    const session = await getSessionFromRequest(request);
+    const dbName = getDatabaseName(session);
+    await connectDB(dbName);
     const body = await request.json();
     const { name } = body;
 

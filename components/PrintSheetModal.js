@@ -110,7 +110,7 @@ export default function PrintSheetModal({ sheet, onClose, onSaved }) {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {FIELD_CONFIG.map((field) => (
               <div key={field.name}>
-                <label className="mb-1 block text-sm font-medium text-stone-700">
+                <label className="mb-1 block text-sm font-semibold text-stone-700">
                   {field.label} <span className="text-red-500">*</span>
                 </label>
                 <input

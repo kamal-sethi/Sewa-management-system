@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import { requireAdminRequest } from "@/lib/auth";
 import Person from "@/models/Person";
+import { getDatabaseName, getSessionFromRequest } from "../../../lib/auth";
 
 // GET /api/people — fetch all people
 export async function GET(request) {
@@ -10,7 +11,9 @@ export async function GET(request) {
     const authError = await requireAdminRequest(request);
     if (authError) return authError;
 
-    await connectDB();
+    const session = await getSessionFromRequest(request);
+    const dbName = getDatabaseName(session);
+    await connectDB(dbName);
     const people = await Person.find().sort({ name: 1 }).lean();
     return NextResponse.json({ success: true, data: people });
   } catch (error) {
@@ -27,9 +30,19 @@ export async function POST(request) {
     const authError = await requireAdminRequest(request);
     if (authError) return authError;
 
-    await connectDB();
+    const session = await getSessionFromRequest(request);
+    const dbName = getDatabaseName(session);
+    await connectDB(dbName);
     const body = await request.json();
-    const { name, fatherOrHusbandName, age, gender, mobileNumber, address } =
+    const {
+      name,
+      fatherOrHusbandName,
+      age,
+      gender,
+      mobileNumber,
+      aadharNumber,
+      address,
+    } =
       body;
 
     // Validate required fields
@@ -57,12 +70,26 @@ export async function POST(request) {
       }
     }
 
+    if (aadharNumber && aadharNumber.trim().length > 0) {
+      const aadharDigits = aadharNumber.replace(/\D/g, "");
+      if (aadharDigits.length !== 12) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Aadhaar number must be exactly 12 digits",
+          },
+          { status: 400 },
+        );
+      }
+    }
+
     const person = await Person.create({
       name: name.trim(),
       fatherOrHusbandName: fatherOrHusbandName.trim(),
       age: Number(age),
       gender,
       mobileNumber: mobileNumber?.trim() || "",
+      aadharNumber: aadharNumber?.trim() || "",
       address: address?.trim() || "",
     });
 

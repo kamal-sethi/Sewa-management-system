@@ -99,19 +99,27 @@ function preparePdfClone(cloneDocument) {
   body.style.setProperty("padding", "0", "important");
   body.style.setProperty("width", "210mm", "important");
   body.style.setProperty("min-width", "210mm", "important");
+  body.style.setProperty("overflow", "hidden", "important");
 
   if (!printContent) {
     return;
   }
 
   printContent.classList.add("njr-pdf-mode");
-  printContent.style.setProperty("width", "190mm", "important");
-  printContent.style.setProperty("min-width", "190mm", "important");
-  printContent.style.setProperty("max-width", "190mm", "important");
-  printContent.style.setProperty("margin", "0 auto", "important");
-  printContent.style.setProperty("padding", "10mm 12mm", "important");
+  printContent.style.setProperty("width", "210mm", "important");
+  printContent.style.setProperty("min-width", "210mm", "important");
+  printContent.style.setProperty("max-width", "210mm", "important");
+  printContent.style.setProperty("margin", "0", "important");
+  printContent.style.setProperty("padding", "2mm 4mm 8mm", "important");
   printContent.style.setProperty("box-shadow", "none", "important");
   printContent.style.setProperty("min-height", "0", "important");
+
+  const logoInner = printContent.querySelector(".njr-logo-inner");
+  if (logoInner) {
+    logoInner.style.setProperty("justify-content", "center", "important");
+    logoInner.style.setProperty("padding-top", "0", "important");
+    logoInner.style.setProperty("line-height", "0.95", "important");
+  }
 }
 
 async function generatePdfFromElement(element, filename) {
@@ -119,14 +127,14 @@ async function generatePdfFromElement(element, filename) {
 
   await html2pdf()
     .set({
-      margin: 10,
+      margin: [1, 0, 0, 0],
       filename: `${sanitizeFilename(filename)}.pdf`,
       image: { type: "jpeg", quality: 0.98 },
       html2canvas: {
         scale: 2,
         useCORS: true,
         backgroundColor: "#ffffff",
-        windowWidth: 1400,
+        windowWidth: 1600,
         windowHeight: element.scrollHeight,
         scrollX: 0,
         scrollY: 0,
@@ -136,8 +144,8 @@ async function generatePdfFromElement(element, filename) {
       },
       jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
       pagebreak: {
-        mode: ["css", "legacy"],
-        avoid: [".njr-no-break", "tr"],
+        mode: ["css"],
+        avoid: [".njr-no-break", ".section-row"],
       },
     })
     .from(element)
@@ -148,6 +156,10 @@ async function generatePdfFromElement(element, filename) {
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&display=swap');
 
+  .njr-root {
+    box-sizing: border-box;
+  }
+
   .njr-root * {
     font-family: 'Times New Roman', Times, serif;
     box-sizing: border-box;
@@ -155,10 +167,10 @@ const styles = `
 
   .njr-page {
     background: white;
-    width: 210mm;
-    min-height: 297mm;
+    width: min(210mm, 100%);
+    min-height: 0;
     margin: 0 auto;
-    padding: 12mm 14mm;
+    padding: 4mm 6mm 10mm;
     box-shadow: 0 4px 32px rgba(0,0,0,0.18);
     position: relative;
     font-size: 11.5px;
@@ -166,18 +178,18 @@ const styles = `
 
   .njr-top-right-id {
     position: absolute;
-    top: 6mm;
-    right: 12mm;
+    top: 1.5mm;
+    right: 4mm;
     font-size: 12px;
     font-weight: normal;
     text-align: right;
   }
 
   .njr-pdf-mode {
-    width: 190mm !important;
-    min-width: 190mm !important;
-    max-width: 190mm !important;
-    padding: 10mm 12mm !important;
+    width: 210mm !important;
+    min-width: 210mm !important;
+    max-width: 210mm !important;
+    padding: 2mm 4mm 8mm !important;
     box-shadow: none !important;
     min-height: 0 !important;
   }
@@ -246,6 +258,7 @@ const styles = `
     font-weight: 700;
     letter-spacing: 1px;
     line-height: 0.95;
+    padding-top: 0;
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
   }
@@ -325,8 +338,8 @@ const styles = `
     body { background: white !important; padding: 0 !important; margin: 0 !important; }
     .njr-actions { display: none !important; }
     .njr-top-right-id {
-      top: 3mm !important;
-      right: 12mm !important;
+      top: 1mm !important;
+      right: 4mm !important;
     }
     .njr-logo-inner {
       background: #111 !important;
@@ -338,7 +351,7 @@ const styles = `
       box-shadow: none !important;
       width: 100% !important;
       margin: 0 !important;
-      padding: 4mm 12mm 10mm !important;
+      padding: 2mm 4mm 8mm !important;
       min-height: 0 !important;
     }
     .njr-meta-row {
@@ -372,9 +385,9 @@ const styles = `
   }
 
   .njr-table {
-    width: calc(100% + 20mm);
-    margin-left: -10mm;
-    margin-right: -10mm;
+    width: calc(100% + 4mm);
+    margin-left: -2mm;
+    margin-right: -2mm;
     border-collapse: collapse;
     table-layout: fixed;
     font-size: 11.5px;
@@ -397,7 +410,7 @@ const styles = `
     break-inside: avoid;
   }
   .njr-table th {
-    font-weight: normal;
+    font-weight: 700;
     background: white;
     text-align: left;
     vertical-align: top;
@@ -413,12 +426,12 @@ const styles = `
     font-weight: 600;
   }
   .njr-table th.sno { width: 6%; text-align: center; }
-  .njr-table th.name-col { width: 25%; }
-  .njr-table th.father-col { width: 24%; }
+  .njr-table th.name-col { width: 21%; }
+  .njr-table th.father-col { width: 22%; }
   .njr-table th.gender { width: 9%; }
   .njr-table th.age { width: 6%; }
-  .njr-table th.address-col { width: 20%; }
-  .njr-table th.mobile-col { width: 10%; }
+  .njr-table th.address-col { width: 23%; }
+  .njr-table th.mobile-col { width: 13%; }
   .njr-table th.gender,
   .njr-table th.age,
   .njr-table th.mobile-col {
@@ -490,7 +503,7 @@ const styles = `
   .njr-footer {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    margin-top: 80px;
+    margin-top: 56px;
     font-size: 11px;
     gap: 12px;
   }
@@ -577,15 +590,48 @@ export default function SewaJathaNominalRoll({ data = defaultData }) {
       .trim();
 
   const jathedarNames = splitMultiValue(data.jathedar).map(normalizeName);
-  const jathedarNameSet = new Set(jathedarNames.filter(Boolean));
   const isFemaleJathedar = /\bSMT\.?\b/i.test(data.jathedar || "");
+  const matchedJathedarKeys = new Set();
+  const usedSewadarKeys = new Set();
+
+  jathedarNames
+    .filter(Boolean)
+    .forEach((jathedarName) => {
+      const matchedSewadar = data.sewadars.find((sewadar, index) => {
+        const sewadarKey =
+          sewadar.recordId ||
+          sewadar.personId ||
+          `${normalizeName(sewadar?.name)}-${index}`;
+
+        if (usedSewadarKeys.has(sewadarKey)) {
+          return false;
+        }
+
+        return normalizeName(sewadar?.name) === jathedarName;
+      });
+
+      if (!matchedSewadar) {
+        return;
+      }
+
+      const matchedKey =
+        matchedSewadar.recordId ||
+        matchedSewadar.personId ||
+        normalizeName(matchedSewadar?.name);
+
+      usedSewadarKeys.add(matchedKey);
+      matchedJathedarKeys.add(matchedKey);
+    });
 
   const compareAlphabetically = (left, right) =>
     normalizeName(left?.name).localeCompare(normalizeName(right?.name), "en", {
       sensitivity: "base",
     });
 
-  const isJathedar = (sewadar) => jathedarNameSet.has(normalizeName(sewadar?.name));
+  const getSewadarKey = (sewadar) =>
+    sewadar?.recordId || sewadar?.personId || normalizeName(sewadar?.name);
+
+  const isJathedar = (sewadar) => matchedJathedarKeys.has(getSewadarKey(sewadar));
 
   const sortSewadars = (sewadars) =>
     [...sewadars].sort((left, right) => {
@@ -631,6 +677,7 @@ export default function SewaJathaNominalRoll({ data = defaultData }) {
   };
 
   const toUppercaseText = (value = "") => String(value || "").toUpperCase();
+  const normalizeGender = (value = "") => String(value || "").trim().toUpperCase();
 
   const isChild = (sewadar) => {
     const age = Number(sewadar.age);
@@ -639,35 +686,50 @@ export default function SewaJathaNominalRoll({ data = defaultData }) {
 
   const maleSewadars = sortSewadars(
     data.sewadars.filter(
-      (sewadar) =>
-        !isChild(sewadar) &&
-        sewadar.gender === "MALE" &&
-        (!isFemaleJathedar || !isJathedar(sewadar)),
+      (sewadar) => !isChild(sewadar) && normalizeGender(sewadar.gender) === "MALE",
     ),
   );
   const femaleSewadars = sortSewadars(
     data.sewadars.filter(
       (sewadar) =>
-        !isChild(sewadar) &&
-        sewadar.gender === "FEMALE" &&
-        (isFemaleJathedar || !isJathedar(sewadar)),
+        !isChild(sewadar) && normalizeGender(sewadar.gender) === "FEMALE",
     ),
   );
   const childSewadars = [...data.sewadars.filter(isChild)].sort(compareAlphabetically);
+  const automaticChildSpacingRows = childSewadars.length > 0 ? 2 : 0;
   const displayRows = [
     ...maleSewadars.map((sewadar) => ({ type: "person", sewadar })),
     ...femaleSewadars.map((sewadar) => ({ type: "person", sewadar })),
     ...(childSewadars.length > 0
       ? [
+          ...Array.from({ length: extraEmptyRows }, (_, index) => ({
+            type: "empty",
+            key: `before-child-${index}`,
+          })),
           { type: "child-heading" },
           ...childSewadars.map((sewadar) => ({ type: "person", sewadar })),
+          ...Array.from({ length: automaticChildSpacingRows }, (_, index) => ({
+            type: "empty",
+            key: `after-child-${index}`,
+          })),
         ]
-      : []),
+      : Array.from({ length: extraEmptyRows }, (_, index) => ({
+          type: "empty",
+          key: `tail-empty-${index}`,
+        }))),
   ];
   const males = maleSewadars.length;
   const females = femaleSewadars.length;
   const children = childSewadars.length;
   const total = data.sewadars.length;
+  const summaryText =
+    children > 0
+      ? `Males : _${males}_, Females : _${females}_, Children : _${children}_, Total : ${total}`
+      : `Males : _${males}_, Females : _${females}_, Total : ${total}`;
+  const getLineRowNumber = (index) =>
+    displayRows
+      .slice(0, index + 1)
+      .filter((item) => item.type === "person" || item.type === "empty").length;
 
   const handleDownloadPdf = async () => {
     const printContent = document.getElementById("print-content");
@@ -813,12 +875,25 @@ export default function SewaJathaNominalRoll({ data = defaultData }) {
                 );
               }
 
+              if (row.type === "empty") {
+                const rowNumber = getLineRowNumber(index);
+
+                return (
+                  <tr key={row.key} className="njr-no-break">
+                    <td className="center sno-cell">{rowNumber}</td>
+                    <td className="name-cell">&nbsp;</td>
+                    <td className="father-cell">&nbsp;</td>
+                    <td className="center">&nbsp;</td>
+                    <td className="center">&nbsp;</td>
+                    <td className="address-cell">&nbsp;</td>
+                    <td className="mobile-cell">&nbsp;</td>
+                  </tr>
+                );
+              }
+
               const s = row.sewadar;
               const sewadarIsJathedar = isJathedar(s);
-              const rowNumber =
-                displayRows
-                  .slice(0, index + 1)
-                  .filter((item) => item.type === "person").length;
+              const rowNumber = getLineRowNumber(index);
 
               return (
                 <tr key={`${s.name}-${index}`} className="njr-no-break">
@@ -830,9 +905,9 @@ export default function SewaJathaNominalRoll({ data = defaultData }) {
                   </td>
                   <td className="father-cell">{s.fatherHusband}</td>
                   <td className="center">
-                    {s.gender === "MALE"
+                    {normalizeGender(s.gender) === "MALE"
                       ? "M"
-                      : s.gender === "FEMALE"
+                      : normalizeGender(s.gender) === "FEMALE"
                         ? "F"
                         : s.gender}
                   </td>
@@ -842,30 +917,12 @@ export default function SewaJathaNominalRoll({ data = defaultData }) {
                 </tr>
               );
             })}
-            {Array.from({ length: extraEmptyRows }, (_, index) => {
-              const rowNumber =
-                displayRows.filter((item) => item.type === "person").length +
-                index +
-                1;
-
-              return (
-                <tr key={`empty-row-${index}`} className="njr-no-break">
-                  <td className="center sno-cell">{rowNumber}</td>
-                  <td className="name-cell">&nbsp;</td>
-                  <td className="father-cell">&nbsp;</td>
-                  <td className="center">&nbsp;</td>
-                  <td className="center">&nbsp;</td>
-                  <td className="address-cell">&nbsp;</td>
-                  <td className="mobile-cell">&nbsp;</td>
-                </tr>
-              );
-            })}
           </tbody>
         </table>
 
         {/* Summary */}
         <div className="njr-summary">
-          Males : _{males}_, Females : _{females}_, Children : _{children}_, Total : {total}
+          {summaryText}
         </div>
         <div className="njr-note">
           NOTE: &nbsp;1) {data.signatureNote}

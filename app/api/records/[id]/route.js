@@ -4,6 +4,7 @@ import { connectDB } from "@/lib/mongodb";
 import { requireAdminRequest } from "@/lib/auth";
 import Record from "@/models/Record";
 import { normalizeFareInput } from "@/lib/fare";
+import { getDatabaseName, getSessionFromRequest } from "../../../../lib/auth";
 
 const getRecordId = async (params) => {
   const resolvedParams = await params;
@@ -16,7 +17,9 @@ export async function PUT(request, { params }) {
     const authError = await requireAdminRequest(request);
     if (authError) return authError;
 
-    await connectDB();
+    const session = await getSessionFromRequest(request);
+    const dbName = getDatabaseName(session);
+    await connectDB(dbName);
     const id = await getRecordId(params);
     const body = await request.json();
     const { fare, remarks } = body;
@@ -27,13 +30,13 @@ export async function PUT(request, { params }) {
         fare: normalizeFareInput(fare),
         remarks: remarks?.trim() || "",
       },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     ).populate("personId");
 
     if (!record) {
       return NextResponse.json(
         { success: false, message: "Record not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -41,7 +44,7 @@ export async function PUT(request, { params }) {
   } catch (error) {
     return NextResponse.json(
       { success: false, message: error.message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -52,14 +55,16 @@ export async function DELETE(request, { params }) {
     const authError = await requireAdminRequest(request);
     if (authError) return authError;
 
-    await connectDB();
+    const session = await getSessionFromRequest(request);
+    const dbName = getDatabaseName(session);
+    await connectDB(dbName);
     const id = await getRecordId(params);
     const record = await Record.findByIdAndDelete(id);
 
     if (!record) {
       return NextResponse.json(
         { success: false, message: "Record not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -70,7 +75,7 @@ export async function DELETE(request, { params }) {
   } catch (error) {
     return NextResponse.json(
       { success: false, message: error.message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

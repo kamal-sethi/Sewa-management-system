@@ -1,16 +1,24 @@
 // app/api/people/search/route.js
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
-import { requireAdminRequest } from "@/lib/auth";
+import {
+  requireAdminRequest,
+  getSessionFromRequest,
+  getDatabaseName,
+} from "@/lib/auth";
 import Person from "@/models/Person";
 
-// GET /api/people/search?name=xyz — autocomplete search
+// GET /api/people/search?name=xyz
 export async function GET(request) {
   try {
     const authError = await requireAdminRequest(request);
     if (authError) return authError;
 
-    await connectDB();
+    // 🔥 NEW: DB SWITCH
+    const session = await getSessionFromRequest(request);
+    const dbName = getDatabaseName(session);
+    await connectDB(dbName);
+
     const { searchParams } = new URL(request.url);
     const name = searchParams.get("name")?.trim();
 
@@ -18,20 +26,21 @@ export async function GET(request) {
       return NextResponse.json({ success: true, data: [] });
     }
 
-    // Case-insensitive prefix search — fast and intuitive for autocomplete
+    // Prefix search
     const people = await Person.find({
       name: { $regex: `^${name}`, $options: "i" },
     })
       .limit(8)
       .lean();
 
-    // If no prefix matches, fall back to contains search
+    // Fallback search
     if (people.length === 0) {
       const fallback = await Person.find({
         name: { $regex: name, $options: "i" },
       })
         .limit(8)
         .lean();
+
       return NextResponse.json({ success: true, data: fallback });
     }
 

@@ -66,17 +66,17 @@ h1, h2, h3, .font-display {
   }
  
   .modal-overlay {
-    @apply fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4;
+    @apply fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-2 backdrop-blur-sm sm:items-center sm:p-4;
   }
  
   .modal-box {
-    @apply bg-white rounded-2xl shadow-2xl w-full max-w-md p-6;
+    @apply max-h-[90dvh] w-full overflow-y-auto rounded-t-2xl bg-white p-4 shadow-2xl sm:max-h-[85vh] sm:max-w-md sm:rounded-2xl sm:p-6;
   }
 }
  
 /* Scrollable table container */
 .table-scroll {
-  overflow-x: hidden;
+  overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-color: #d6d3d1 #f5f5f4;
   scrollbar-width: thin;

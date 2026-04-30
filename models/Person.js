@@ -34,10 +34,15 @@ const PersonSchema = new mongoose.Schema(
       trim: true,
       default: "",
     },
+    aadharNumber: {
+      type: String,
+      trim: true,
+      default: "",
+    },
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // Text index for fast name search
@@ -45,5 +50,4 @@ PersonSchema.index({ name: "text" });
 // Regular index for partial/prefix search
 PersonSchema.index({ name: 1 });
 
-export default mongoose.models.Person ||
-  mongoose.model("Person", PersonSchema);
+export default mongoose.models.Person || mongoose.model("Person", PersonSchema);
