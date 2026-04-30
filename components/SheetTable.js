@@ -1,7 +1,5 @@
-// components/SheetTable.js
 "use client";
-import { useEffect } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import RecordRow from "@/components/RecordRow";
 import AutocompleteInput from "@/components/AutocompleteInput";
 import AddPersonModal from "@/components/AddPersonModal";
@@ -55,6 +53,10 @@ export default function SheetTable({
   const [printSheet, setPrintSheet] = useState(null);
   const [loadingPrintDetails, setLoadingPrintDetails] = useState(false);
   const [newPersonName, setNewPersonName] = useState("");
+  const [duplicateWarning, setDuplicateWarning] = useState("");
+
+  const isSamePersonAlreadyInSheet = (person) =>
+    records.some((record) => record.personId?._id === person?._id);
 
   const resetAddRow = () => {
     setAddRow(false);
@@ -62,10 +64,21 @@ export default function SheetTable({
     setFare("");
     setRemarks("");
     setError("");
+    setDuplicateWarning("");
   };
 
   const handlePersonSelected = (person) => {
     setSelectedPerson(person);
+    setError("");
+
+    if (isSamePersonAlreadyInSheet(person)) {
+      setDuplicateWarning(
+        "This exact person is already added to this sheet. Same name is okay for different person IDs, but this selected person ID already exists here."
+      );
+      return;
+    }
+
+    setDuplicateWarning("");
   };
 
   const handleNotFound = (name) => {
@@ -76,12 +89,14 @@ export default function SheetTable({
   const handlePersonAdded = async (person) => {
     setShowAddPerson(false);
     setSelectedPerson(person);
+    setDuplicateWarning("");
     await addRecordForPerson(person);
   };
 
-  const addRecordForPerson = async (person) => {
+  const addRecordForPerson = async (person, allowDuplicate = false) => {
     setSaving(true);
     setError("");
+
     try {
       const res = await fetch("/api/records", {
         method: "POST",
@@ -91,9 +106,11 @@ export default function SheetTable({
           personId: person._id,
           fare,
           remarks: remarks || "",
+          allowDuplicate,
         }),
       });
       const data = await res.json();
+
       if (data.success) {
         onRecordsChange((prev) => [...prev, data.data]);
         resetAddRow();
@@ -112,12 +129,16 @@ export default function SheetTable({
       setError("Please select a person first.");
       return;
     }
-    await addRecordForPerson(selectedPerson);
+
+    await addRecordForPerson(
+      selectedPerson,
+      isSamePersonAlreadyInSheet(selectedPerson)
+    );
   };
 
   const handleUpdated = (updatedRecord) => {
     onRecordsChange((prev) =>
-      prev.map((r) => (r._id === updatedRecord._id ? updatedRecord : r)),
+      prev.map((r) => (r._id === updatedRecord._id ? updatedRecord : r))
     );
   };
 
@@ -182,14 +203,14 @@ export default function SheetTable({
       {addRow && (
         <div className="card mb-4 shrink-0 p-4">
           <h3
-            className="text-sm font-semibold text-stone-700 mb-3"
+            className="mb-3 text-sm font-semibold text-stone-700"
             style={{ fontFamily: "'Baloo 2', cursive" }}
           >
             Add Person to Sheet
           </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <div className="sm:col-span-2">
-              <label className="block text-xs font-medium text-stone-600 mb-1">
+              <label className="mb-1 block text-xs font-medium text-stone-600">
                 Search by Name
               </label>
               <AutocompleteInput
@@ -197,13 +218,18 @@ export default function SheetTable({
                 onNotFound={handleNotFound}
               />
               {selectedPerson && (
-                <p className="text-xs text-green-600 mt-1">
+                <p className="mt-1 text-xs text-green-600">
                   {selectedPerson.name} selected
+                </p>
+              )}
+              {duplicateWarning && (
+                <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-700">
+                  {duplicateWarning}
                 </p>
               )}
             </div>
             <div>
-              <label className="block text-xs font-medium text-stone-600 mb-1">
+              <label className="mb-1 block text-xs font-medium text-stone-600">
                 Fare
               </label>
               <input
@@ -215,7 +241,7 @@ export default function SheetTable({
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-stone-600 mb-1">
+              <label className="mb-1 block text-xs font-medium text-stone-600">
                 Remarks
               </label>
               <input
@@ -229,7 +255,7 @@ export default function SheetTable({
           </div>
 
           {error && (
-            <p className="text-xs text-red-500 mt-2 bg-red-50 px-3 py-1.5 rounded-lg">
+            <p className="mt-2 rounded-lg bg-red-50 px-3 py-1.5 text-xs text-red-500">
               {error}
             </p>
           )}
@@ -240,7 +266,11 @@ export default function SheetTable({
               disabled={saving || !selectedPerson}
               className="btn-primary text-sm sm:w-auto"
             >
-              {saving ? "Adding..." : "Add to Sheet"}
+              {saving
+                ? "Adding..."
+                : duplicateWarning
+                  ? "Add Again Anyway"
+                  : "Add to Sheet"}
             </button>
             <button
               onClick={resetAddRow}
@@ -254,7 +284,7 @@ export default function SheetTable({
 
       {records.length === 0 ? (
         <div className="card min-h-0 flex-1 overflow-y-auto p-10 text-center text-stone-400">
-          <p className="text-3xl mb-2">No Data</p>
+          <p className="mb-2 text-3xl">No Data</p>
           <p className="text-sm">
             {totalRecordsCount === 0
               ? "No records yet. Add a person to get started."
@@ -278,7 +308,7 @@ export default function SheetTable({
                   {COLUMNS.map((col) => (
                     <th
                       key={col}
-                      className="border border-stone-300 px-3 py-3 text-xs font-semibold uppercase tracking-wide text-stone-500 whitespace-nowrap"
+                      className="whitespace-nowrap border border-stone-300 px-3 py-3 text-xs font-semibold uppercase tracking-wide text-stone-500"
                     >
                       {col}
                     </th>
@@ -305,7 +335,7 @@ export default function SheetTable({
               {records.length} person{records.length !== 1 ? "s" : ""}
             </span>
             <span className="font-medium text-stone-700">
-              Total Fare: ₹
+              Total Fare: Rs.
               {records.reduce((sum, r) => sum + getFareAmount(r.fare), 0)}
             </span>
           </div>

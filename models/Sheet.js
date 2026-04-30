@@ -13,6 +13,11 @@ const SheetSchema = new mongoose.Schema(
       trim: true,
       default: "",
     },
+    vehicleType: {
+      type: String,
+      trim: true,
+      default: "",
+    },
     busNumber: {
       type: String,
       trim: true,

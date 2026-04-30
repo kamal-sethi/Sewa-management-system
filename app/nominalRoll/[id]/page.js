@@ -43,7 +43,7 @@ const toNominalRollData = (sheet, records, extraEmptyRows = 0) => {
     zone: "III",
     jathedar: sheet.jathedarName || "",
     driver: sheet.driverName || "",
-    vehicleType: "BUS",
+    vehicleType: (sheet.vehicleType || "").toUpperCase(),
     vehicleNo: sheet.busNumber || "",
     placeOfSewa: sheet.sewaName || sheet.name || "",
     sewaFrom,

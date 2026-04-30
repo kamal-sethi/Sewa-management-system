@@ -29,8 +29,8 @@ const RecordSchema = new mongoose.Schema(
   }
 );
 
-// Prevent duplicate person in same sheet
-RecordSchema.index({ sheetId: 1, personId: 1 }, { unique: true });
+// Keep this indexed for lookup speed, but allow duplicates when needed.
+RecordSchema.index({ sheetId: 1, personId: 1 });
 
 export default mongoose.models.Record ||
   mongoose.model("Record", RecordSchema);

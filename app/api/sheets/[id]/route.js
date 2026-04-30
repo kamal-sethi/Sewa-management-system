@@ -15,6 +15,7 @@ const getSheetId = async (params) => {
 const isValidId = (id) => mongoose.Types.ObjectId.isValid(id);
 const SHEET_DETAIL_FIELDS = [
   "driverName",
+  "vehicleType",
   "busNumber",
   "jathedarName",
   "jathedarMobileNumber",
@@ -22,6 +23,7 @@ const SHEET_DETAIL_FIELDS = [
   "sewaName",
   "nominalRollId",
 ];
+const VEHICLE_TYPES = new Set(["Bus", "Jeep", "Car"]);
 
 // GET /api/sheets/:id - fetch one sheet with its records
 export async function GET(request, { params }) {
@@ -110,6 +112,20 @@ export async function PUT(request, { params }) {
           {
             success: false,
             message: "Jathedar mobile number must be exactly 10 digits",
+          },
+          { status: 400 },
+        );
+      }
+    }
+
+    if ("vehicleType" in body) {
+      const normalizedVehicleType = String(body.vehicleType || "").trim();
+
+      if (!VEHICLE_TYPES.has(normalizedVehicleType)) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Vehicle type must be Bus, Jeep, or Car",
           },
           { status: 400 },
         );

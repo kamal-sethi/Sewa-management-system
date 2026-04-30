@@ -2,8 +2,16 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+const VEHICLE_OPTIONS = ["Bus", "Jeep", "Car"];
+
 const FIELD_CONFIG = [
   { name: "driverName", label: "Name of Driver" },
+  {
+    name: "vehicleType",
+    label: "Type of Vehicle",
+    type: "select",
+    options: VEHICLE_OPTIONS,
+  },
   { name: "busNumber", label: "Bus No" },
   { name: "jathedarName", label: "Name of Jathedar" },
   {
@@ -113,25 +121,46 @@ export default function PrintSheetModal({ sheet, onClose, onSaved }) {
                 <label className="mb-1 block text-sm font-semibold text-stone-700">
                   {field.label} <span className="text-red-500">*</span>
                 </label>
-                <input
-                  type={field.type || "text"}
-                  className="input-field"
-                  value={form[field.name]}
-                  placeholder={field.placeholder || ""}
-                  onChange={(event) => {
-                    const value =
-                      field.name === "jathedarMobileNumber"
-                        ? event.target.value.replace(/\D/g, "").slice(0, 10)
-                        : event.target.value;
+                {field.type === "select" ? (
+                  <select
+                    className="input-field"
+                    value={form[field.name]}
+                    onChange={(event) =>
+                      setForm((current) => ({
+                        ...current,
+                        [field.name]: event.target.value,
+                      }))
+                    }
+                    required
+                  >
+                    <option value="">Select vehicle type</option>
+                    {field.options.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    type={field.type || "text"}
+                    className="input-field"
+                    value={form[field.name]}
+                    placeholder={field.placeholder || ""}
+                    onChange={(event) => {
+                      const value =
+                        field.name === "jathedarMobileNumber"
+                          ? event.target.value.replace(/\D/g, "").slice(0, 10)
+                          : event.target.value;
 
-                    setForm((current) => ({
-                      ...current,
-                      [field.name]: value,
-                    }));
-                  }}
-                  maxLength={field.name === "jathedarMobileNumber" ? 10 : undefined}
-                  required
-                />
+                      setForm((current) => ({
+                        ...current,
+                        [field.name]: value,
+                      }));
+                    }}
+                    maxLength={field.name === "jathedarMobileNumber" ? 10 : undefined}
+                    required
+                  />
+                )}
               </div>
             ))}
           </div>
