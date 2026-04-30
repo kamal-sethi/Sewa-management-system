@@ -225,12 +225,15 @@ const styles = `
   }
 
   .njr-logo-wrap {
-    display: grid;
-    grid-template-columns: 46px minmax(0, 1fr) 46px;
+    display: flex;
     align-items: center;
+    justify-content: center;
     gap: 18px;
     margin-bottom: 4px;
-    width: 100%;
+    width: fit-content;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .njr-logo-box {
@@ -266,11 +269,6 @@ const styles = `
   .njr-header-title {
     text-align: center;
     min-width: 0;
-  }
-  .njr-logo-spacer {
-    width: 46px;
-    height: 52px;
-    flex-shrink: 0;
   }
   .njr-header-title h1 {
     font-size: 17px;
@@ -783,7 +781,6 @@ export default function SewaJathaNominalRoll({ data = defaultData }) {
             <h2>Nominal Roll Sewa Jatha</h2>
             <div className="njr-header-id">ID - {data.sciRef}</div>
           </div>
-          <div className="njr-logo-spacer" aria-hidden="true" />
         </div>
 
         {/* Registration Numbers */}
