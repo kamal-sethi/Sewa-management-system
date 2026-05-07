@@ -14,10 +14,14 @@ const FILTERS = [
   { id: "child", label: "Child (<14)" },
   { id: "fareEmpty", label: "Fare Empty" },
   { id: "fareNA", label: "Fare N/A" },
+  { id: "reached", label: "Reached" },
   { id: "already", label: "Already" },
 ];
 
-const normalizeGender = (value = "") => String(value || "").trim().toUpperCase();
+const normalizeGender = (value = "") =>
+  String(value || "")
+    .trim()
+    .toUpperCase();
 
 export default function SheetDetailPage() {
   const { id } = useParams();
@@ -143,6 +147,8 @@ export default function SheetDetailPage() {
           return isFareEmpty(record.fare);
         case "fareNA":
           return isFareNA(record.fare);
+        case "reached":
+          return !isFareEmpty(record.fare) && !isFareNA(record.fare);
         case "already":
           return remarks === "already" || remarks === "already in beas";
         default:
