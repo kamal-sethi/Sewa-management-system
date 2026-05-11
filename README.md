@@ -69,15 +69,11 @@ The application currently manages:
 
 ---
 
-# 📷 Screenshots
 
-
-
----
 
 # 🧑‍💻 Local Setup
 
 ## Clone repository
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/kamal-sethi/Sewa-management-system.git
