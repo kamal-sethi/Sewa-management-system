@@ -116,9 +116,17 @@ function preparePdfClone(cloneDocument) {
 
   const logoInner = printContent.querySelector(".njr-logo-inner");
   if (logoInner) {
-    logoInner.style.setProperty("justify-content", "center", "important");
-    logoInner.style.setProperty("padding-top", "0", "important");
-    logoInner.style.setProperty("line-height", "0.95", "important");
+    logoInner.style.setProperty("padding", "0", "important");
+    logoInner.style.setProperty("overflow", "hidden", "important");
+  }
+  const logoWrap = printContent.querySelector(".njr-logo-wrap");
+  if (logoWrap) {
+    logoWrap.style.setProperty("flex-direction", "column", "important");
+    logoWrap.style.setProperty("align-items", "center", "important");
+    logoWrap.style.setProperty("justify-content", "center", "important");
+    logoWrap.style.setProperty("gap", "6px", "important");
+    logoWrap.style.setProperty("margin-bottom", "6px", "important");
+    logoWrap.style.setProperty("flex-wrap", "nowrap", "important");
   }
 }
 
@@ -233,15 +241,30 @@ const styles = `
     flex-wrap: nowrap;
   }
 
+  /* PDF-mode: stack and center logo above title so it is visually centered
+     in the generated/downloaded A4 output */
+  .njr-pdf-mode .njr-logo-wrap {
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    margin-bottom: 6px !important;
+    flex-wrap: nowrap !important;
+  }
+
+  .njr-pdf-mode .njr-header-title {
+    text-align: center !important;
+    flex: unset !important;
+    width: auto !important;
+  }
+
   .njr-logo-box {
     border: 2px solid #222;
     width: 46px;
     height: 52px;
     padding: 2px;
     background: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: grid;
     flex-shrink: 0;
   }
 
@@ -250,17 +273,39 @@ const styles = `
     height: 100%;
     background: #111;
     color: #fff;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    padding: 0;
+    overflow: hidden;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .njr-logo-svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .njr-logo-svg text {
+    fill: #fff;
+    font-family: 'Times New Roman', Times, serif;
     font-size: 16px;
     font-weight: 700;
     letter-spacing: 1px;
-    line-height: 0.95;
-    padding-top: 0;
-    print-color-adjust: exact;
-    -webkit-print-color-adjust: exact;
+    text-anchor: middle;
+    dominant-baseline: middle;
+  }
+
+  .njr-logo-svg .njr-logo-rs {
+    transform: translateY(-8px);
+  }
+
+  .njr-logo-svg .njr-logo-sb {
+    transform: translateY(8px);
+  }
+
+  .njr-logo-inner span,
+  .njr-logo-inner div {
+    display: block;
   }
 
   .njr-header-title {
@@ -547,16 +592,73 @@ const defaultData = {
   sewaFrom: "27/03/2026",
   sewaTo: "29/03/2026",
   sewadars: [
-    { name: "GURPREET SINGH",  fatherHusband: "LAKHMINDER SINGH", gender: "MALE",   age: 24, mobileNumber: "9876543209", address: "GHANAUR"     },
-    { name: "BHART",           fatherHusband: "HARBANS LAL",      gender: "MALE",   age: 26, mobileNumber: "9876543210", address: "PATIALA - I" },
-    { name: "BHANU PARKASH",   fatherHusband: "GOVIND CHAND",     gender: "MALE",   age: 35, mobileNumber: "9876543211", address: "PATIALA - I" },
-    { name: "KAMAL SETHI",     fatherHusband: "MOHINDER KUMAR",   gender: "MALE",   age: 24, mobileNumber: "9876543212", address: "RAJPURA"     },
-    { name: "HARDIK KATHURIA", fatherHusband: "SANJAY KATHURIA",  gender: "MALE",   age: 23, mobileNumber: "9876543213", address: "RAJPURA"     },
-    { name: "PRIYANKA KAUSHAL",fatherHusband: "LEKH RAJ",         gender: "FEMALE", age: 24, mobileNumber: "9876543214", address: "RAJPURA"     },
-    { name: "GUNJAN UTREJA",   fatherHusband: "VINOD KUMAR",      gender: "FEMALE", age: 25, mobileNumber: "9876543215", address: "RAJPURA"     },
-    { name: "DEEPANSHI",       fatherHusband: "PREM KUMAR",       gender: "FEMALE", age: 28, mobileNumber: "9876543216", address: "RAJPURA"     },
+    {
+      name: "GURPREET SINGH",
+      fatherHusband: "LAKHMINDER SINGH",
+      gender: "MALE",
+      age: 24,
+      mobileNumber: "9876543209",
+      address: "GHANAUR",
+    },
+    {
+      name: "BHART",
+      fatherHusband: "HARBANS LAL",
+      gender: "MALE",
+      age: 26,
+      mobileNumber: "9876543210",
+      address: "PATIALA - I",
+    },
+    {
+      name: "BHANU PARKASH",
+      fatherHusband: "GOVIND CHAND",
+      gender: "MALE",
+      age: 35,
+      mobileNumber: "9876543211",
+      address: "PATIALA - I",
+    },
+    {
+      name: "KAMAL SETHI",
+      fatherHusband: "MOHINDER KUMAR",
+      gender: "MALE",
+      age: 24,
+      mobileNumber: "9876543212",
+      address: "RAJPURA",
+    },
+    {
+      name: "HARDIK KATHURIA",
+      fatherHusband: "SANJAY KATHURIA",
+      gender: "MALE",
+      age: 23,
+      mobileNumber: "9876543213",
+      address: "RAJPURA",
+    },
+    {
+      name: "PRIYANKA KAUSHAL",
+      fatherHusband: "LEKH RAJ",
+      gender: "FEMALE",
+      age: 24,
+      mobileNumber: "9876543214",
+      address: "RAJPURA",
+    },
+    {
+      name: "GUNJAN UTREJA",
+      fatherHusband: "VINOD KUMAR",
+      gender: "FEMALE",
+      age: 25,
+      mobileNumber: "9876543215",
+      address: "RAJPURA",
+    },
+    {
+      name: "DEEPANSHI",
+      fatherHusband: "PREM KUMAR",
+      gender: "FEMALE",
+      age: 28,
+      mobileNumber: "9876543216",
+      address: "RAJPURA",
+    },
   ],
-  signatureNote: "1) THE IDENTITY, AGE AND PHYSICAL FITNESS OF MECH. SEWADAR IS HEREBY CONFIRMED.",
+  signatureNote:
+    "1) THE IDENTITY, AGE AND PHYSICAL FITNESS OF MECH. SEWADAR IS HEREBY CONFIRMED.",
   functionary: {
     name: "LALIT JINDAL",
     title: "Secretary, RSS(B), RAJPURA",
@@ -584,7 +686,10 @@ export default function SewaJathaNominalRoll({ data = defaultData }) {
   const normalizeName = (value = "") =>
     String(value)
       .toUpperCase()
-      .replace(/\b(SHRI|SH\.|SH|SMT\.|SMT|SARDAR|SARDARNI|MISS|MRS\.|MRS|MS\.)\b/g, "")
+      .replace(
+        /\b(SHRI|SH\.|SH|SMT\.|SMT|SARDAR|SARDARNI|MISS|MRS\.|MRS|MS\.)\b/g,
+        "",
+      )
       .replace(/[^A-Z\s]/g, " ")
       .replace(/\s+/g, " ")
       .trim();
@@ -594,34 +699,32 @@ export default function SewaJathaNominalRoll({ data = defaultData }) {
   const matchedJathedarKeys = new Set();
   const usedSewadarKeys = new Set();
 
-  jathedarNames
-    .filter(Boolean)
-    .forEach((jathedarName) => {
-      const matchedSewadar = data.sewadars.find((sewadar, index) => {
-        const sewadarKey =
-          sewadar.recordId ||
-          sewadar.personId ||
-          `${normalizeName(sewadar?.name)}-${index}`;
+  jathedarNames.filter(Boolean).forEach((jathedarName) => {
+    const matchedSewadar = data.sewadars.find((sewadar, index) => {
+      const sewadarKey =
+        sewadar.recordId ||
+        sewadar.personId ||
+        `${normalizeName(sewadar?.name)}-${index}`;
 
-        if (usedSewadarKeys.has(sewadarKey)) {
-          return false;
-        }
-
-        return normalizeName(sewadar?.name) === jathedarName;
-      });
-
-      if (!matchedSewadar) {
-        return;
+      if (usedSewadarKeys.has(sewadarKey)) {
+        return false;
       }
 
-      const matchedKey =
-        matchedSewadar.recordId ||
-        matchedSewadar.personId ||
-        normalizeName(matchedSewadar?.name);
-
-      usedSewadarKeys.add(matchedKey);
-      matchedJathedarKeys.add(matchedKey);
+      return normalizeName(sewadar?.name) === jathedarName;
     });
+
+    if (!matchedSewadar) {
+      return;
+    }
+
+    const matchedKey =
+      matchedSewadar.recordId ||
+      matchedSewadar.personId ||
+      normalizeName(matchedSewadar?.name);
+
+    usedSewadarKeys.add(matchedKey);
+    matchedJathedarKeys.add(matchedKey);
+  });
 
   const compareAlphabetically = (left, right) =>
     normalizeName(left?.name).localeCompare(normalizeName(right?.name), "en", {
@@ -631,7 +734,8 @@ export default function SewaJathaNominalRoll({ data = defaultData }) {
   const getSewadarKey = (sewadar) =>
     sewadar?.recordId || sewadar?.personId || normalizeName(sewadar?.name);
 
-  const isJathedar = (sewadar) => matchedJathedarKeys.has(getSewadarKey(sewadar));
+  const isJathedar = (sewadar) =>
+    matchedJathedarKeys.has(getSewadarKey(sewadar));
 
   const sortSewadars = (sewadars) =>
     [...sewadars].sort((left, right) => {
@@ -677,7 +781,10 @@ export default function SewaJathaNominalRoll({ data = defaultData }) {
   };
 
   const toUppercaseText = (value = "") => String(value || "").toUpperCase();
-  const normalizeGender = (value = "") => String(value || "").trim().toUpperCase();
+  const normalizeGender = (value = "") =>
+    String(value || "")
+      .trim()
+      .toUpperCase();
 
   const isChild = (sewadar) => {
     const age = Number(sewadar.age);
@@ -686,7 +793,8 @@ export default function SewaJathaNominalRoll({ data = defaultData }) {
 
   const maleSewadars = sortSewadars(
     data.sewadars.filter(
-      (sewadar) => !isChild(sewadar) && normalizeGender(sewadar.gender) === "MALE",
+      (sewadar) =>
+        !isChild(sewadar) && normalizeGender(sewadar.gender) === "MALE",
     ),
   );
   const femaleSewadars = sortSewadars(
@@ -695,7 +803,9 @@ export default function SewaJathaNominalRoll({ data = defaultData }) {
         !isChild(sewadar) && normalizeGender(sewadar.gender) === "FEMALE",
     ),
   );
-  const childSewadars = [...data.sewadars.filter(isChild)].sort(compareAlphabetically);
+  const childSewadars = [...data.sewadars.filter(isChild)].sort(
+    compareAlphabetically,
+  );
   const automaticChildSpacingRows = childSewadars.length > 0 ? 2 : 0;
   const displayRows = [
     ...maleSewadars.map((sewadar) => ({ type: "person", sewadar })),
@@ -769,8 +879,20 @@ export default function SewaJathaNominalRoll({ data = defaultData }) {
         <div className="njr-logo-wrap">
           <div className="njr-logo-box">
             <div className="njr-logo-inner">
-              <span>RS</span>
-              <span>SB</span>
+              <svg
+                className="njr-logo-svg"
+                viewBox="0 0 42 48"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <rect x="0" y="0" width="42" height="48" fill="#111" />
+                <text x="21" y="24" className="njr-logo-rs">
+                  RS
+                </text>
+                <text x="21" y="24" className="njr-logo-sb">
+                  SB
+                </text>
+              </svg>
             </div>
           </div>
           <div className="njr-header-title">
@@ -792,20 +914,31 @@ export default function SewaJathaNominalRoll({ data = defaultData }) {
 
         {/* Meta Row 1 */}
         <div className="njr-meta-row njr-meta-row--top">
-          <span>NAME OF SATSANG PLACE: <span className="njr-val">{data.satsangPlace}</span></span>
-          <span>AREA: <span className="njr-val">{data.area}</span></span>
-          <span>ZONE: <span className="njr-val">{data.zone}</span></span>
+          <span>
+            NAME OF SATSANG PLACE:{" "}
+            <span className="njr-val">{data.satsangPlace}</span>
+          </span>
+          <span>
+            AREA: <span className="njr-val">{data.area}</span>
+          </span>
+          <span>
+            ZONE: <span className="njr-val">{data.zone}</span>
+          </span>
         </div>
 
         {/* Meta Row 2 */}
         <div className="njr-meta-row">
           <span className="njr-meta-pair">
             <span className="njr-meta-label">NAME OF JATHEDAR:</span>
-            <span className="njr-val">{renderNamesOnSeparateLines(data.jathedar)}</span>
+            <span className="njr-val">
+              {renderNamesOnSeparateLines(data.jathedar)}
+            </span>
           </span>
           <span className="njr-meta-pair">
             <span className="njr-meta-label">NAME OF DRIVER:</span>
-            <span className="njr-val">{renderNamesOnSeparateLines(data.driver)}</span>
+            <span className="njr-val">
+              {renderNamesOnSeparateLines(data.driver)}
+            </span>
           </span>
         </div>
 
@@ -817,7 +950,9 @@ export default function SewaJathaNominalRoll({ data = defaultData }) {
           </span>
           <span className="njr-meta-pair">
             <span className="njr-meta-label">VEHICLE NO:</span>
-            <span className="njr-val">{renderVehicleNumbers(data.vehicleNo)}</span>
+            <span className="njr-val">
+              {renderVehicleNumbers(data.vehicleNo)}
+            </span>
           </span>
         </div>
 
@@ -829,13 +964,14 @@ export default function SewaJathaNominalRoll({ data = defaultData }) {
           </span>
           <span className="njr-meta-pair">
             <span className="njr-meta-label">DURATION OF SEWA FROM:</span>
-            <span className="njr-val">{data.sewaFrom}</span>{" "}
-            <span>TO</span>
+            <span className="njr-val">{data.sewaFrom}</span> <span>TO</span>
             <span className="njr-val">{data.sewaTo}</span>
           </span>
         </div>
 
-        <div className="njr-mention">(Mention Beas Department or Centre as applicable)</div>
+        <div className="njr-mention">
+          (Mention Beas Department or Centre as applicable)
+        </div>
 
         {/* Table */}
         <table className="njr-table">
@@ -853,8 +989,8 @@ export default function SewaJathaNominalRoll({ data = defaultData }) {
               </th>
               <th className="age center">AGE</th>
               <th className="address-col">
-                R/O VILLAGE / TOWN<br />
-                / LOCALITY /DISTRICT
+                R/O VILLAGE / TOWN
+                <br />/ LOCALITY /DISTRICT
               </th>
               <th className="mobile-col">MOBILE NO</th>
             </tr>
@@ -921,31 +1057,30 @@ export default function SewaJathaNominalRoll({ data = defaultData }) {
         </table>
 
         {/* Summary */}
-        <div className="njr-summary">
-          {summaryText}
-        </div>
-        <div className="njr-note">
-          NOTE: &nbsp;1) {data.signatureNote}
-        </div>
+        <div className="njr-summary">{summaryText}</div>
+        <div className="njr-note">NOTE: &nbsp;1) {data.signatureNote}</div>
 
         {/* Footer Signatures */}
         <div className="njr-footer">
           <div className="njr-footer-left">
             <div className="njr-sig-block">
-              (SIGNATURE OF JATHEDAR)<br />
-              DATE: {data.jathedarSignature.date}<br />
+              (SIGNATURE OF JATHEDAR)
+              <br />
+              DATE: {data.jathedarSignature.date}
+              <br />
               Contact No: <strong>{data.jathedarSignature.contact}</strong>
             </div>
           </div>
           <div className="njr-footer-right">
             <div className="njr-sig-block">
-              (SIGNATURE OF FUNCTIONARY)<br />
-              DATE: {data.functionarySignature.date}<br />
+              (SIGNATURE OF FUNCTIONARY)
+              <br />
+              DATE: {data.functionarySignature.date}
+              <br />
               Contact No: <strong>{data.functionarySignature.contact}</strong>
             </div>
           </div>
         </div>
-
       </div>
     </div>
   );

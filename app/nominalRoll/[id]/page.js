@@ -39,7 +39,7 @@ const toNominalRollData = (sheet, records, extraEmptyRows = 0) => {
     sciRef: sheet.nominalRollId || "",
     registrations: [],
     satsangPlace: "RAJPURA",
-    area: "PATIALA",
+    area: "PATIALA-A",
     zone: "III",
     jathedar: sheet.jathedarName || "",
     driver: sheet.driverName || "",

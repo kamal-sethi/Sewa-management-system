@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-const VEHICLE_OPTIONS = ["Bus", "Jeep", "Car"];
+const VEHICLE_OPTIONS = ["Bus", "Jeep", "Car","Flight","Train","-"];
 
 const FIELD_CONFIG = [
   { name: "driverName", label: "Name of Driver" },
