@@ -23,7 +23,7 @@ const SHEET_DETAIL_FIELDS = [
   "sewaName",
   "nominalRollId",
 ];
-const VEHICLE_TYPES = new Set(["Bus", "Jeep", "Car"]);
+const VEHICLE_TYPES = new Set(["Bus", "Jeep", "Car", "Flight", "Train", "-"]);
 
 // GET /api/sheets/:id - fetch one sheet with its records
 export async function GET(request, { params }) {
@@ -125,7 +125,7 @@ export async function PUT(request, { params }) {
         return NextResponse.json(
           {
             success: false,
-            message: "Vehicle type must be Bus, Jeep, or Car",
+            message: "Vehicle type is invalid",
           },
           { status: 400 },
         );
