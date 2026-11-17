@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 export default function EditSheetModal({ sheet, onClose, onUpdated }) {
-  const [name, setName] = useState(sheet.name);
+  const [name, setName] = useState(sheet?.name || "");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -17,13 +17,14 @@ export default function EditSheetModal({ sheet, onClose, onUpdated }) {
       const res = await fetch(`/api/sheets/${sheet._id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ name: name.trim() }),
       });
       const data = await res.json();
       if (data.success) {
-        onUpdated(data.data);
+        if (onUpdated) onUpdated(data.data);
+        if (onClose) onClose();
       } else {
-        setError(data.message);
+        setError(data.message || "Failed to update sheet name.");
       }
     } catch {
       setError("Failed to update sheet name.");

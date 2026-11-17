@@ -92,6 +92,7 @@ export default function SheetDetailPage() {
         setFindOpen(false);
         setActiveMatchId(null);
         setFindMessage("");
+        setFindQuery("");
       }
     };
 
@@ -157,9 +158,8 @@ export default function SheetDetailPage() {
     });
 
   const getSearchText = (record) =>
-    `${record.personId?.name || ""} ${
-      record.personId?.fatherOrHusbandName || ""
-    }`.toLowerCase();
+    `${record.personId?.name || ""} ${record.personId?.fatherOrHusbandName || ""
+      }`.toLowerCase();
 
   const findMatches = (recordList, query) => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -206,7 +206,7 @@ export default function SheetDetailPage() {
           ? 0
           : visibleMatches.length - 1
         : (currentIndex + direction + visibleMatches.length) %
-          visibleMatches.length;
+        visibleMatches.length;
     const nextRecord = visibleMatches[nextIndex];
     const rowNumber =
       searchRecords.findIndex((record) => record._id === nextRecord._id) + 1;
@@ -220,6 +220,13 @@ export default function SheetDetailPage() {
   const handleFindSubmit = (event) => {
     event.preventDefault();
     goToMatch(event.shiftKey ? -1 : 1);
+  };
+
+  const handleClearAndCloseFind = () => {
+    setFindOpen(false);
+    setActiveMatchId(null);
+    setFindMessage("");
+    setFindQuery("");
   };
 
   const totalFare = filteredRecords.reduce(
@@ -239,13 +246,36 @@ export default function SheetDetailPage() {
   return (
     <div className="flex min-h-[calc(100dvh-6.5rem)] flex-col overflow-hidden">
       <div className="mb-4 flex shrink-0 flex-wrap items-center gap-2 text-sm text-stone-500">
-        <Link href="/" className="hover:text-orange-600 transition-colors">
+        <Link href="/sheets" className="hover:text-orange-600 transition-colors">
           All Sheets
         </Link>
         <span>/</span>
-        <span className="min-w-0 flex-1 text-stone-700 font-medium break-words sm:flex-none sm:truncate">
-          {sheet.name}
-        </span>
+        <div className="flex items-center gap-1.5 min-w-0">
+          <span className="min-w-0 flex-1 text-stone-700 font-medium break-words sm:flex-none sm:truncate">
+            {sheet.name}
+          </span>
+          <button
+            type="button"
+            onClick={() => setShowEdit(true)}
+            title="Edit sheet name"
+            className="cursor-pointer text-stone-400 hover:text-orange-600 transition-colors p-1 rounded-md hover:bg-orange-50 shrink-0"
+            aria-label="Edit sheet name"
+          >
+            <svg
+              className="w-3.5 h-3.5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
 
       <div className="mb-4 flex shrink-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -324,28 +354,36 @@ export default function SheetDetailPage() {
             id="sheet-find"
             ref={findInputRef}
             type="search"
-            className="input-field h-9 flex-1 py-1"
+            className="input-field h-9 flex-1 py-1 [&::-webkit-search-cancel-button]:cursor-pointer"
             value={findQuery}
             onChange={(event) => {
-              setFindQuery(event.target.value);
-              setFindMessage("");
+              const value = event.target.value;
+              setFindQuery(value);
+              if (!value) {
+                handleClearAndCloseFind();
+              } else {
+                setFindMessage("");
+              }
+            }}
+            onSearch={(event) => {
+              if (!event.target.value) {
+                handleClearAndCloseFind();
+              }
             }}
             onKeyDown={(event) => {
               if (event.key === "Escape") {
                 event.preventDefault();
-                setFindOpen(false);
-                setActiveMatchId(null);
-                setFindMessage("");
+                handleClearAndCloseFind();
               }
             }}
             placeholder="Name or father name"
           />
-          <button type="submit" className="btn-primary h-9 px-3 text-sm">
+          <button type="submit" className="btn-primary h-9 px-3 text-sm cursor-pointer">
             Find
           </button>
           <button
             type="button"
-            className="btn-secondary h-9 px-3 text-sm"
+            className="btn-secondary h-9 px-3 text-sm cursor-pointer"
             onClick={() => goToMatch(-1)}
           >
             Prev
@@ -355,15 +393,11 @@ export default function SheetDetailPage() {
           </span>
           <button
             type="button"
-            className="h-9 w-full rounded-lg border border-stone-300 text-stone-500 transition hover:bg-stone-100 sm:w-9"
-            onClick={() => {
-              setFindOpen(false);
-              setActiveMatchId(null);
-              setFindMessage("");
-            }}
+            className="h-9 w-full rounded-lg border border-stone-300 text-stone-500 transition hover:bg-stone-100 hover:text-stone-800 sm:w-9 cursor-pointer flex items-center justify-center font-medium"
+            onClick={handleClearAndCloseFind}
             aria-label="Close find"
           >
-            x
+            ✕
           </button>
         </form>
       )}

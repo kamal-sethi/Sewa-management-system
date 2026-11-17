@@ -13,6 +13,11 @@ function getMonthKey(value) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
 }
 
+function getCurrentMonthKey() {
+  const date = new Date();
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+}
+
 function formatMonthLabel(value) {
   const [year, month] = value.split("-");
   const date = new Date(Number(year), Number(month) - 1, 1);
@@ -28,7 +33,7 @@ export default function SheetsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showCreate, setShowCreate] = useState(false);
-  const [selectedMonth, setSelectedMonth] = useState("all");
+  const [selectedMonth, setSelectedMonth] = useState(getCurrentMonthKey());
 
   useEffect(() => {
     let active = true;
@@ -80,12 +85,22 @@ export default function SheetsPage() {
     setSheets((prev) => prev.filter((sheet) => sheet._id !== id));
   };
 
+  const handleSheetUpdated = (updatedSheet) => {
+    setSheets((prev) =>
+      prev.map((sheet) =>
+        sheet._id === updatedSheet._id ? { ...sheet, ...updatedSheet } : sheet
+      )
+    );
+  };
+
+  const currentMonthKey = getCurrentMonthKey();
   const monthOptions = Array.from(
-    new Set(
-      sheets
+    new Set([
+      currentMonthKey,
+      ...sheets
         .map((sheet) => getMonthKey(sheet.createdAt))
-        .filter(Boolean)
-    )
+        .filter(Boolean),
+    ])
   ).sort((a, b) => b.localeCompare(a));
 
   const filteredSheets = sheets.filter((sheet) => {
@@ -122,12 +137,13 @@ export default function SheetsPage() {
               onChange={(event) => setSelectedMonth(event.target.value)}
               className="input-field min-w-[200px]"
             >
-              <option value="all">All months</option>
               {monthOptions.map((month) => (
                 <option key={month} value={month}>
                   {formatMonthLabel(month)}
+                  {month === currentMonthKey ? " (Current)" : ""}
                 </option>
               ))}
+              <option value="all">All months</option>
             </select>
           </div>
 
@@ -194,12 +210,13 @@ export default function SheetsPage() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
           {filteredSheets.map((sheet) => (
             <SheetCard
               key={sheet._id}
               sheet={sheet}
               onDeleted={handleSheetDeleted}
+              onUpdated={handleSheetUpdated}
             />
           ))}
         </div>

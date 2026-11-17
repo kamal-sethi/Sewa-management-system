@@ -22,6 +22,8 @@ const SHEET_DETAIL_FIELDS = [
   "sewaDuration",
   "sewaName",
   "nominalRollId",
+  "hasNominalRoll",
+  "extraLines",
 ];
 const VEHICLE_TYPES = new Set(["Bus", "Jeep", "Car", "Flight", "Train", "-"]);
 
@@ -134,12 +136,17 @@ export async function PUT(request, { params }) {
 
     SHEET_DETAIL_FIELDS.forEach((field) => {
       if (field in body) {
-        update[field] =
-          field === "jathedarMobileNumber"
-            ? String(body[field] || "")
-                .replace(/\D/g, "")
-                .slice(0, 10)
-            : body[field]?.trim() || "";
+        if (field === "jathedarMobileNumber") {
+          update[field] = String(body[field] || "")
+            .replace(/\D/g, "")
+            .slice(0, 10);
+        } else if (field === "hasNominalRoll") {
+          update[field] = Boolean(body[field]);
+        } else if (field === "extraLines") {
+          update[field] = Math.max(0, Number(body[field]) || 0);
+        } else {
+          update[field] = body[field]?.trim() || "";
+        }
       }
     });
 

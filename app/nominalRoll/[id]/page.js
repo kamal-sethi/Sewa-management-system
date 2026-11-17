@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
+import Link from "next/link";
 import mongoose from "mongoose";
 import SewaJathaNominalRoll from "@/components/Sewajathanominalroll";
 import { connectDB } from "@/lib/mongodb";
@@ -112,8 +113,24 @@ export default async function Page({ params, searchParams }) {
     .lean();
 
   return (
-    <SewaJathaNominalRoll
-      data={toNominalRollData(sheet, records, extraEmptyRows)}
-    />
+    <div>
+      <div className="mx-auto max-w-[210mm] px-4 pt-4 pb-2 print:hidden flex items-center justify-between text-sm">
+        <Link
+          href="/nominalRoll"
+          className="inline-flex items-center gap-1.5 font-medium text-stone-600 hover:text-orange-600 transition-colors cursor-pointer"
+        >
+          ← Back to Nominal Rolls
+        </Link>
+        <Link
+          href={`/sheets/${id}`}
+          className="font-medium text-stone-500 hover:text-stone-800 transition-colors cursor-pointer"
+        >
+          View Source Sheet →
+        </Link>
+      </div>
+      <SewaJathaNominalRoll
+        data={toNominalRollData(sheet, records, extraEmptyRows)}
+      />
+    </div>
   );
 }

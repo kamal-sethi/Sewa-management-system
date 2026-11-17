@@ -49,7 +49,15 @@ export async function GET(request) {
     }
 
     const sheets = await Sheet.find().sort({ createdAt: -1 }).lean();
-    return NextResponse.json({ success: true, data: sheets });
+    const counts = await Record.aggregate([
+      { $group: { _id: "$sheetId", count: { $sum: 1 } } },
+    ]);
+    const countMap = new Map(counts.map((c) => [String(c._id), c.count]));
+    const sheetsWithCount = sheets.map((s) => ({
+      ...s,
+      recordsCount: countMap.get(String(s._id)) || 0,
+    }));
+    return NextResponse.json({ success: true, data: sheetsWithCount });
   } catch (error) {
     return NextResponse.json(
       { success: false, message: error.message },

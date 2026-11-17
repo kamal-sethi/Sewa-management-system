@@ -48,6 +48,14 @@ const SheetSchema = new mongoose.Schema(
       trim: true,
       default: "",
     },
+    hasNominalRoll: {
+      type: Boolean,
+      default: false,
+    },
+    extraLines: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true, // createdAt, updatedAt auto-managed

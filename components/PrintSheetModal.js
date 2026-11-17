@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-const VEHICLE_OPTIONS = ["Bus", "Jeep", "Car","Flight","Train","Tractor Trolley","-"];
+const VEHICLE_OPTIONS = ["Bus", "Jeep", "Car", "Flight", "Train", "Tractor Trolley", "-"];
 
 const FIELD_CONFIG = [
   { name: "driverName", label: "Name of Driver" },
@@ -67,7 +67,7 @@ export default function PrintSheetModal({ sheet, onClose, onSaved }) {
       const res = await fetch(`/api/sheets/${sheet._id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, hasNominalRoll: true }),
       });
       const data = await res.json();
 
@@ -85,7 +85,7 @@ export default function PrintSheetModal({ sheet, onClose, onSaved }) {
     }
   };
 
-  const handlePreview = () => {
+  const handlePreview = async () => {
     const normalizedValue = extraLines.trim();
 
     if (!/^\d+$/.test(normalizedValue)) {
@@ -94,8 +94,27 @@ export default function PrintSheetModal({ sheet, onClose, onSaved }) {
     }
 
     setError("");
+    const parsedLines = Number(normalizedValue) || 0;
+
+    try {
+      await fetch(`/api/sheets/${sheet._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          hasNominalRoll: true,
+          extraLines: parsedLines,
+        }),
+      });
+    } catch (e) {
+      console.error(e);
+    }
+
     if (savedSheet) {
-      onSaved(savedSheet);
+      onSaved({
+        ...savedSheet,
+        hasNominalRoll: true,
+        extraLines: parsedLines,
+      });
     }
     onClose();
     router.push(`/nominalRoll/${sheet._id}?extraLines=${normalizedValue}`);
@@ -175,16 +194,16 @@ export default function PrintSheetModal({ sheet, onClose, onSaved }) {
             <button
               type="button"
               onClick={onClose}
-              className="btn-secondary flex-1"
+              className="btn-secondary flex-1 cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={saving || !isComplete}
-              className="btn-primary flex-1"
+              className="btn-primary flex-1 cursor-pointer"
             >
-              {saving ? "Saving..." : "Save & Preview"}
+              {saving ? "Saving..." : "Save & Continue"}
             </button>
           </div>
         </form>
@@ -214,9 +233,9 @@ export default function PrintSheetModal({ sheet, onClose, onSaved }) {
               <button
                 type="button"
                 onClick={handlePreview}
-                className="btn-primary sm:min-w-40"
+                className="btn-primary sm:min-w-48 cursor-pointer flex items-center justify-center gap-1.5"
               >
-                Preview
+                Continue to Nominal Roll →
               </button>
             </div>
           </div>

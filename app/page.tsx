@@ -20,7 +20,7 @@ export default function HomePage() {
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
         <Link
           href="/nominalRoll"
-          className="card block p-6 transition-all hover:-translate-y-0.5 hover:shadow-md"
+          className="card block p-6 transition-all hover:-translate-y-0.5 hover:shadow-md cursor-pointer"
         >
           <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-100 text-2xl">
             <span>📄</span>
@@ -38,7 +38,7 @@ export default function HomePage() {
 
         <Link
           href="/sheets"
-          className="card block p-6 transition-all hover:-translate-y-0.5 hover:shadow-md"
+          className="card block p-6 transition-all hover:-translate-y-0.5 hover:shadow-md cursor-pointer"
         >
           <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-100 text-2xl">
             <span>📋</span>
